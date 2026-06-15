@@ -611,7 +611,7 @@ async function genReply(){
   const hosp=hospInfo.hospital||'병원', dept=hospInfo.dept||'내과';
   const tl=curReview.type==='positive'?'긍정':curReview.type==='negative'?'부정':'중립';
   try{
-    const res=await fetch('https://generatereply-2i4y6wysiq-du.a.run.app',{
+    const res=await fetch('https://asia-northeast3-medireview-ai-b92cb.cloudfunctions.net/generateReply',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
