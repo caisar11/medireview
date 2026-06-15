@@ -3,130 +3,231 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MediReview AI — 로그인</title>
+<title>MediReview AI</title>
 <style>
   :root {
-    --primary: #1d4ed8;
-    --primary-dark: #1e40af;
-    --primary-light: #eff6ff;
-    --danger: #dc2626;
-    --success: #16a34a;
-    --text: #0f172a;
-    --text2: #475569;
-    --text3: #94a3b8;
-    --border: #e2e8f0;
-    --bg: #f8fafc;
-    --card: #ffffff;
+    --primary: #1d4ed8; --primary-dark: #1e40af; --primary-light: #eff6ff;
+    --success: #16a34a; --danger: #dc2626; --warning: #d97706;
+    --text: #0f172a; --text2: #475569; --text3: #94a3b8;
+    --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-  /* Layout */
-  .auth-wrap { flex: 1; display: flex; min-height: 100vh; }
-  .auth-left { width: 420px; flex-shrink: 0; background: linear-gradient(160deg, #0f172a 0%, #1e3a5f 100%); display: flex; flex-direction: column; justify-content: center; padding: 48px; }
-  .auth-left-logo { font-size: 22px; font-weight: 900; color: #fff; margin-bottom: 48px; }
-  .auth-left-logo span { color: #60a5fa; }
-  .auth-left h2 { font-size: 28px; font-weight: 800; color: #fff; line-height: 1.3; margin-bottom: 16px; }
-  .auth-left p { font-size: 15px; color: #94a3b8; line-height: 1.7; margin-bottom: 40px; }
-  .auth-perks { display: flex; flex-direction: column; gap: 14px; }
-  .perk { display: flex; align-items: center; gap: 12px; color: #cbd5e1; font-size: 14px; }
-  .perk-dot { width: 8px; height: 8px; background: #60a5fa; border-radius: 50%; flex-shrink: 0; }
+  /* ── PAGE SYSTEM ── */
+  .page { display: none; }
+  .page.active { display: flex; }
 
-  .auth-right { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 24px; }
-  .auth-card { width: 100%; max-width: 420px; }
-  .auth-card h1 { font-size: 24px; font-weight: 900; margin-bottom: 6px; }
-  .auth-card .sub { font-size: 14px; color: var(--text2); margin-bottom: 32px; }
+  /* ══════════════════════════════════
+     AUTH PAGE
+  ══════════════════════════════════ */
+  #authPage { min-height: 100vh; }
+  .auth-left { width: 400px; flex-shrink: 0; background: linear-gradient(160deg,#0f172a,#1e3a5f); display:flex; flex-direction:column; justify-content:center; padding:48px; }
+  .auth-logo { font-size:20px; font-weight:900; color:#fff; margin-bottom:40px; }
+  .auth-logo span { color:#60a5fa; }
+  .auth-left h2 { font-size:26px; font-weight:800; color:#fff; line-height:1.3; margin-bottom:12px; }
+  .auth-left p { font-size:14px; color:#94a3b8; line-height:1.7; margin-bottom:32px; }
+  .auth-perks { display:flex; flex-direction:column; gap:12px; }
+  .perk { display:flex; align-items:center; gap:10px; color:#cbd5e1; font-size:13px; }
+  .perk-dot { width:7px; height:7px; background:#60a5fa; border-radius:50%; flex-shrink:0; }
+  .auth-right { flex:1; display:flex; align-items:center; justify-content:center; padding:40px 24px; }
+  .auth-card { width:100%; max-width:400px; }
+  .auth-card h1 { font-size:22px; font-weight:900; margin-bottom:4px; }
+  .auth-card .sub { font-size:13px; color:var(--text2); margin-bottom:24px; }
+  .tabs { display:flex; background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:4px; margin-bottom:22px; }
+  .tab { flex:1; padding:9px; border:none; background:none; border-radius:7px; font-size:13px; font-weight:600; color:var(--text2); cursor:pointer; transition:all .15s; }
+  .tab.active { background:#fff; color:var(--primary); box-shadow:0 1px 4px rgba(0,0,0,.08); }
+  .fg { margin-bottom:14px; }
+  .fg label { display:block; font-size:12px; font-weight:600; color:var(--text); margin-bottom:5px; }
+  .iw { position:relative; }
+  .iw input, .sw select { width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:9px; font-size:13px; color:var(--text); outline:none; transition:border .15s; background:#fff; }
+  .iw input:focus, .sw select:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(29,78,216,.07); }
+  .iw input.err { border-color:var(--danger); }
+  .eye { position:absolute; right:11px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:15px; cursor:pointer; }
+  .sw { position:relative; }
+  .sw::after { content:'▾'; position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text3); pointer-events:none; font-size:12px; }
+  .sw select { appearance:none; }
+  .ferr { font-size:11px; color:var(--danger); margin-top:3px; display:none; }
+  .ferr.show { display:block; }
+  .pw-str { margin-top:5px; display:none; }
+  .pw-str.show { display:block; }
+  .pw-bars { display:flex; gap:3px; margin-bottom:3px; }
+  .pw-bar { height:3px; flex:1; border-radius:2px; background:var(--border); transition:background .2s; }
+  .pw-bar.weak { background:var(--danger); }
+  .pw-bar.medium { background:#f59e0b; }
+  .pw-bar.strong { background:var(--success); }
+  .pw-lbl { font-size:11px; color:var(--text3); }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .chk-row { display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--text2); margin-bottom:10px; }
+  .chk-row input { width:14px; height:14px; margin-top:1px; accent-color:var(--primary); flex-shrink:0; }
+  .chk-row a { color:var(--primary); text-decoration:none; }
+  .divider { display:flex; align-items:center; gap:10px; margin:16px 0; }
+  .divider::before,.divider::after { content:''; flex:1; height:1px; background:var(--border); }
+  .divider span { font-size:11px; color:var(--text3); }
+  .btn-google { width:100%; padding:10px; border:1.5px solid var(--border); border-radius:9px; background:#fff; font-size:13px; font-weight:600; color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .15s; margin-bottom:8px; }
+  .btn-google:hover { border-color:#94a3b8; background:var(--bg); }
+  .btn-submit { width:100%; padding:12px; background:var(--primary); color:#fff; border:none; border-radius:9px; font-size:14px; font-weight:700; cursor:pointer; transition:all .15s; display:flex; align-items:center; justify-content:center; gap:8px; margin-top:4px; }
+  .btn-submit:hover { background:var(--primary-dark); transform:translateY(-1px); }
+  .btn-submit:disabled { background:#93c5fd; cursor:not-allowed; transform:none; }
+  .alert { padding:11px 13px; border-radius:9px; font-size:12px; margin-bottom:14px; display:none; align-items:center; gap:7px; }
+  .alert.show { display:flex; }
+  .alert-err { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+  .alert-ok { background:#f0fdf4; color:#14532d; border:1px solid #bbf7d0; }
+  .sw-txt { text-align:center; font-size:12px; color:var(--text2); margin-top:16px; }
+  .sw-txt a { color:var(--primary); font-weight:600; cursor:pointer; text-decoration:none; }
+  .sec-badges { display:flex; justify-content:center; gap:14px; margin-top:20px; }
+  .s-badge { font-size:11px; color:var(--text3); display:flex; align-items:center; gap:4px; }
+  .spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .6s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
 
-  /* Tabs */
-  .tabs { display: flex; gap: 0; background: var(--bg); border-radius: 10px; padding: 4px; margin-bottom: 28px; border: 1px solid var(--border); }
-  .tab { flex: 1; padding: 10px; border: none; background: none; border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--text2); cursor: pointer; transition: all .15s; }
-  .tab.active { background: #fff; color: var(--primary); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  /* ══════════════════════════════════
+     DASHBOARD PAGE
+  ══════════════════════════════════ */
+  #dashPage { flex-direction:column; min-height:100vh; }
+  .app-wrap { display:flex; flex:1; }
 
-  /* Form */
-  .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
-  .input-wrap { position: relative; }
-  .input-wrap input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 14px; color: var(--text); outline: none; transition: border .15s; background: #fff; }
-  .input-wrap input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(29,78,216,.08); }
-  .input-wrap input.error { border-color: var(--danger); }
-  .input-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 16px; cursor: pointer; user-select: none; }
-  .field-error { font-size: 12px; color: var(--danger); margin-top: 4px; display: none; }
-  .field-error.show { display: block; }
+  /* Sidebar */
+  .sidebar { width:220px; background:#0f172a; color:#cbd5e1; display:flex; flex-direction:column; flex-shrink:0; min-height:100vh; position:sticky; top:0; }
+  .sb-logo { padding:18px 16px; font-size:16px; font-weight:800; color:#fff; border-bottom:1px solid #1e293b; display:flex; align-items:center; gap:8px; }
+  .sb-logo span { color:#60a5fa; }
+  .sb-nav { padding:10px 0; flex:1; }
+  .nav-item { display:flex; align-items:center; gap:9px; padding:10px 16px; cursor:pointer; font-size:13px; border-left:3px solid transparent; transition:all .15s; }
+  .nav-item:hover { background:#1e293b; color:#fff; }
+  .nav-item.active { background:#1e3a5f; color:#60a5fa; border-left-color:#60a5fa; }
+  .nav-icon { font-size:15px; width:18px; text-align:center; }
+  .sb-bottom { padding:12px 16px; border-top:1px solid #1e293b; }
+  .sb-user { font-size:12px; color:#94a3b8; margin-bottom:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sb-hospital { font-size:13px; font-weight:700; color:#cbd5e1; margin-bottom:10px; }
+  .btn-logout-sb { width:100%; padding:7px; background:#1e293b; color:#94a3b8; border:none; border-radius:7px; font-size:12px; cursor:pointer; transition:all .15s; }
+  .btn-logout-sb:hover { background:#334155; color:#fff; }
 
-  /* Password strength */
-  .pw-strength { margin-top: 6px; display: none; }
-  .pw-strength.show { display: block; }
-  .pw-bars { display: flex; gap: 4px; margin-bottom: 4px; }
-  .pw-bar { height: 3px; flex: 1; border-radius: 2px; background: var(--border); transition: background .2s; }
-  .pw-bar.weak { background: var(--danger); }
-  .pw-bar.medium { background: #f59e0b; }
-  .pw-bar.strong { background: var(--success); }
-  .pw-label { font-size: 11px; color: var(--text3); }
+  /* Main area */
+  .main { flex:1; overflow-y:auto; }
+  .topbar { background:var(--card); border-bottom:1px solid var(--border); padding:13px 22px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
+  .topbar-title { font-size:17px; font-weight:800; }
+  .topbar-right { display:flex; align-items:center; gap:10px; }
+  .badge-new { background:#fee2e2; color:var(--danger); font-size:11px; font-weight:700; padding:2px 8px; border-radius:99px; }
+  .btn { padding:7px 14px; border-radius:7px; border:none; cursor:pointer; font-size:12px; font-weight:600; transition:all .15s; }
+  .btn-primary { background:var(--primary); color:#fff; }
+  .btn-primary:hover { background:var(--primary-dark); }
+  .content { padding:22px; }
 
-  /* Specialty select */
-  .select-wrap select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 14px; color: var(--text); outline: none; background: #fff; cursor: pointer; transition: border .15s; appearance: none; }
-  .select-wrap select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(29,78,216,.08); }
-  .select-wrap { position: relative; }
-  .select-wrap::after { content: '▾'; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text3); pointer-events: none; font-size: 13px; }
+  /* Stats */
+  .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+  .stat-card { background:var(--card); border:1px solid var(--border); border-radius:11px; padding:18px; }
+  .stat-label { font-size:11px; color:var(--text2); margin-bottom:6px; font-weight:500; }
+  .stat-val { font-size:26px; font-weight:800; margin-bottom:3px; }
+  .stat-sub { font-size:11px; color:var(--text2); }
+  .stat-sub.up { color:var(--success); }
 
-  /* Checkbox */
-  .check-row { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--text2); margin-bottom: 12px; }
-  .check-row input[type=checkbox] { width: 16px; height: 16px; margin-top: 1px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
-  .check-row a { color: var(--primary); text-decoration: none; }
+  /* Platform */
+  .section-title { font-size:14px; font-weight:700; margin-bottom:12px; }
+  .platform-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; }
+  .platform-card { background:var(--card); border:1px solid var(--border); border-radius:11px; padding:14px; display:flex; align-items:center; gap:12px; }
+  .pl-icon { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .pl-naver { background:#e8f5e9; } .pl-kakao { background:#fffde7; } .pl-google { background:#e3f2fd; }
+  .pl-name { font-size:12px; font-weight:700; margin-bottom:3px; }
+  .pl-rating { display:flex; align-items:center; gap:5px; }
+  .stars { color:#f59e0b; font-size:12px; }
+  .rnum { font-size:14px; font-weight:800; }
+  .rcnt { font-size:11px; color:var(--text2); }
+  .pl-badge { font-size:11px; padding:2px 7px; border-radius:99px; font-weight:600; margin-left:auto; }
+  .badge-new-r { background:#fee2e2; color:var(--danger); }
+  .badge-ok { background:#dcfce7; color:var(--success); }
 
-  /* Divider */
-  .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
-  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-  .divider span { font-size: 12px; color: var(--text3); white-space: nowrap; }
+  /* Review list */
+  .review-toolbar { display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+  .search-box { flex:1; min-width:180px; position:relative; }
+  .search-box input { width:100%; padding:8px 12px 8px 32px; border:1px solid var(--border); border-radius:7px; font-size:13px; outline:none; }
+  .search-box input:focus { border-color:var(--primary); }
+  .si { position:absolute; left:9px; top:50%; transform:translateY(-50%); color:var(--text2); font-size:13px; }
+  .filter-btn { padding:6px 12px; border:1px solid var(--border); border-radius:7px; background:#fff; font-size:12px; cursor:pointer; font-weight:500; transition:all .15s; }
+  .filter-btn:hover,.filter-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .review-list { display:flex; flex-direction:column; gap:10px; }
+  .rc { background:var(--card); border:1px solid var(--border); border-radius:11px; padding:16px; cursor:pointer; transition:box-shadow .15s; }
+  .rc:hover { box-shadow:0 4px 16px rgba(0,0,0,.07); border-color:#c7d2fe; }
+  .rc.neg { border-left:4px solid var(--danger); }
+  .rc.pos { border-left:4px solid var(--success); }
+  .rc.neu { border-left:4px solid var(--warning); }
+  .rc-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:8px; }
+  .rc-meta { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:5px; }
+  .rp { font-size:11px; font-weight:700; padding:2px 7px; border-radius:99px; }
+  .rp-naver { background:#e8f5e9; color:#1b5e20; }
+  .rp-kakao { background:#fffde7; color:#e65100; }
+  .rp-google { background:#e3f2fd; color:#0d47a1; }
+  .rdate { font-size:11px; color:var(--text2); }
+  .rs { font-size:11px; padding:2px 7px; border-radius:99px; font-weight:600; }
+  .rs-p { background:#fee2e2; color:var(--danger); }
+  .rs-r { background:#dcfce7; color:var(--success); }
+  .rc-author { font-size:13px; font-weight:700; }
+  .rc-stars { color:#f59e0b; font-size:12px; }
+  .rc-text { font-size:13px; color:#374151; line-height:1.6; margin-bottom:8px; }
+  .rc-footer { display:flex; align-items:center; justify-content:space-between; }
+  .kws { display:flex; gap:5px; flex-wrap:wrap; }
+  .kw { font-size:11px; background:var(--primary-light); color:var(--primary); padding:2px 7px; border-radius:99px; }
+  .rc-actions { display:flex; gap:5px; }
+  .btn-ai { padding:5px 11px; border-radius:6px; border:none; cursor:pointer; font-size:11px; font-weight:600; transition:all .15s; }
+  .btn-ai-p { background:var(--primary); color:#fff; }
+  .btn-ai-o { background:#fff; color:var(--primary); border:1px solid var(--primary); }
 
-  /* Social btn */
-  .btn-social { width: 100%; padding: 11px; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all .15s; margin-bottom: 10px; }
-  .btn-social:hover { border-color: #94a3b8; background: #f8fafc; }
-  .btn-social img { width: 18px; height: 18px; }
+  /* Modal */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .modal-overlay.hidden { display:none; }
+  .modal { background:#fff; border-radius:14px; width:100%; max-width:600px; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+  .modal-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .modal-title { font-size:15px; font-weight:700; }
+  .modal-close { background:none; border:none; font-size:18px; cursor:pointer; color:var(--text2); }
+  .modal-body { padding:18px 22px; }
+  .modal-rv { background:#f8fafc; border:1px solid var(--border); border-radius:9px; padding:13px; margin-bottom:14px; }
+  .modal-rv-lbl { font-size:11px; font-weight:700; color:var(--text2); margin-bottom:5px; text-transform:uppercase; letter-spacing:.5px; }
+  .modal-rv-txt { font-size:13px; line-height:1.6; }
+  .ai-lbl { font-size:12px; font-weight:700; color:var(--primary); margin-bottom:7px; display:flex; align-items:center; gap:6px; }
+  .ai-status { font-size:11px; color:var(--text2); font-weight:400; }
+  .reply-ta { width:100%; border:1px solid var(--border); border-radius:9px; padding:11px; font-size:13px; line-height:1.7; resize:vertical; min-height:130px; outline:none; font-family:inherit; }
+  .reply-ta:focus { border-color:var(--primary); }
+  .modal-footer { padding:12px 22px 18px; display:flex; gap:7px; justify-content:flex-end; }
+  .ld-dots { display:inline-flex; gap:3px; }
+  .ld-dots span { width:5px; height:5px; background:var(--primary); border-radius:50%; animation:bounce .8s infinite; }
+  .ld-dots span:nth-child(2) { animation-delay:.15s; }
+  .ld-dots span:nth-child(3) { animation-delay:.3s; }
+  @keyframes bounce { 0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)} }
 
-  /* Submit */
-  .btn-submit { width: 100%; padding: 13px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all .15s; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-  .btn-submit:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(29,78,216,.25); }
-  .btn-submit:disabled { background: #93c5fd; cursor: not-allowed; transform: none; box-shadow: none; }
+  /* Toast */
+  .toast { position:fixed; bottom:22px; right:22px; background:#111827; color:#fff; padding:11px 18px; border-radius:9px; font-size:13px; z-index:300; box-shadow:0 4px 20px rgba(0,0,0,.3); transform:translateY(100px); opacity:0; transition:all .3s; }
+  .toast.show { transform:translateY(0); opacity:1; }
 
-  /* Alert */
-  .alert { padding: 12px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
-  .alert.show { display: flex; align-items: center; gap: 8px; }
-  .alert-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-  .alert-success { background: #f0fdf4; color: #14532d; border: 1px solid #bbf7d0; }
+  /* Loading overlay */
+  .loading-overlay { position:fixed; inset:0; background:rgba(255,255,255,.8); z-index:500; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; }
+  .loading-overlay.hidden { display:none; }
+  .big-spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--primary); border-radius:50%; animation:spin .7s linear infinite; }
+  .loading-txt { font-size:14px; color:var(--text2); font-weight:500; }
 
-  /* Switch */
-  .switch-text { text-align: center; font-size: 13px; color: var(--text2); margin-top: 20px; }
-  .switch-text a { color: var(--primary); font-weight: 600; text-decoration: none; cursor: pointer; }
+  /* Info box */
+  .info-box { background:var(--primary-light); border:1px solid #bfdbfe; border-radius:9px; padding:11px 14px; font-size:13px; color:#1e40af; margin-bottom:18px; display:flex; align-items:flex-start; gap:8px; }
 
-  /* Dashboard preview (after login) */
-  .dashboard-preview { display: none; text-align: center; padding: 40px 20px; }
-  .dashboard-preview .icon { font-size: 56px; margin-bottom: 16px; }
-  .dashboard-preview h2 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
-  .dashboard-preview p { font-size: 14px; color: var(--text2); margin-bottom: 24px; }
-  .user-chip { display: inline-flex; align-items: center; gap: 8px; background: var(--primary-light); color: var(--primary); font-size: 13px; font-weight: 700; padding: 8px 16px; border-radius: 99px; margin-bottom: 24px; }
-  .btn-goto { background: var(--primary); color: #fff; padding: 13px 28px; border-radius: 10px; font-size: 15px; font-weight: 700; border: none; cursor: pointer; margin-right: 8px; }
-  .btn-logout { background: #fff; color: var(--text2); padding: 13px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; border: 1.5px solid var(--border); cursor: pointer; }
-
-  /* Loading spinner */
-  .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Security badge */
-  .security-badges { display: flex; justify-content: center; gap: 16px; margin-top: 24px; flex-wrap: wrap; }
-  .s-badge { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text3); }
-
-  @media (max-width: 700px) {
-    .auth-left { display: none; }
-    .auth-right { padding: 24px 16px; align-items: flex-start; padding-top: 40px; }
+  @media (max-width:800px) {
+    .auth-left { display:none; }
+    .stats-grid { grid-template-columns:repeat(2,1fr); }
+    .platform-grid { grid-template-columns:1fr 1fr; }
+    .sidebar { width:52px; }
+    .sb-logo span, .nav-item span:not(.nav-icon), .sb-user, .sb-hospital, .btn-logout-sb { display:none; }
+    .sb-logo { justify-content:center; padding:18px 8px; }
   }
 </style>
 </head>
 <body>
-<div class="auth-wrap">
-  <!-- Left panel -->
+
+<!-- Loading -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="big-spinner"></div>
+  <div class="loading-txt">로그인 확인 중...</div>
+</div>
+
+<!-- ══ AUTH PAGE ══ -->
+<div class="page active" id="authPage">
   <div class="auth-left">
-    <div class="auth-left-logo">🏥 MediReview <span>AI</span></div>
+    <div class="auth-logo">🏥 MediReview <span>AI</span></div>
     <h2>병원 리뷰 관리,<br>이제 AI에게 맡기세요</h2>
     <p>네이버·카카오·구글 리뷰를 한 곳에서.<br>AI가 맞춤 답변 초안을 즉시 생성합니다.</p>
     <div class="auth-perks">
@@ -137,396 +238,387 @@
       <div class="perk"><div class="perk-dot"></div>첫 1개월 완전 무료 체험</div>
     </div>
   </div>
-
-  <!-- Right panel -->
   <div class="auth-right">
-    <div class="auth-card" id="authCard">
+    <div class="auth-card">
       <h1 id="authTitle">로그인</h1>
       <p class="sub" id="authSub">병원 계정으로 로그인하세요</p>
-
-      <!-- Tabs -->
       <div class="tabs">
         <button class="tab active" id="tabLogin" onclick="switchTab('login')">로그인</button>
         <button class="tab" id="tabSignup" onclick="switchTab('signup')">회원가입</button>
       </div>
+      <div class="alert alert-err" id="alertErr">⚠️ <span id="alertErrMsg"></span></div>
+      <div class="alert alert-ok" id="alertOk">✅ <span id="alertOkMsg"></span></div>
 
-      <!-- Alert -->
-      <div class="alert alert-error" id="alertError">⚠️ <span id="alertMsg"></span></div>
-      <div class="alert alert-success" id="alertSuccess">✅ <span id="alertSuccessMsg"></span></div>
-
-      <!-- LOGIN FORM -->
+      <!-- LOGIN -->
       <div id="loginForm">
-        <div class="form-group">
-          <label>이메일</label>
-          <div class="input-wrap">
-            <input type="email" id="loginEmail" placeholder="hospital@example.com" autocomplete="email">
-          </div>
-          <div class="field-error" id="loginEmailErr">올바른 이메일을 입력해주세요</div>
-        </div>
-        <div class="form-group">
-          <label>비밀번호</label>
-          <div class="input-wrap">
-            <input type="password" id="loginPw" placeholder="비밀번호 입력" autocomplete="current-password">
-            <span class="input-icon" onclick="togglePw('loginPw',this)">👁</span>
-          </div>
-          <div class="field-error" id="loginPwErr">비밀번호를 입력해주세요</div>
-        </div>
-        <div style="text-align:right;margin-bottom:16px">
-          <a href="#" style="font-size:13px;color:var(--primary);text-decoration:none" onclick="forgotPw()">비밀번호 찾기</a>
-        </div>
-        <button class="btn-submit" id="loginBtn" onclick="doLogin()">
-          <span>로그인</span>
-        </button>
+        <div class="fg"><label>이메일</label><div class="iw"><input type="email" id="lEmail" placeholder="hospital@example.com" autocomplete="email"></div><div class="ferr" id="lEmailErr">올바른 이메일을 입력해주세요</div></div>
+        <div class="fg"><label>비밀번호</label><div class="iw"><input type="password" id="lPw" placeholder="비밀번호 입력" autocomplete="current-password"><span class="eye" onclick="togglePw('lPw',this)">👁</span></div><div class="ferr" id="lPwErr">비밀번호를 입력해주세요</div></div>
+        <div style="text-align:right;margin-bottom:14px"><a href="#" style="font-size:12px;color:var(--primary);text-decoration:none" onclick="forgotPw()">비밀번호 찾기</a></div>
+        <button class="btn-submit" id="loginBtn" onclick="doLogin()"><span>로그인</span></button>
         <div class="divider"><span>또는</span></div>
-        <button class="btn-social" onclick="doGoogleLogin()">
-          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        <button class="btn-google" onclick="doGoogle()">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
           Google 계정으로 로그인
         </button>
-        <div class="switch-text">계정이 없으신가요? <a onclick="switchTab('signup')">회원가입</a></div>
+        <div class="sw-txt">계정이 없으신가요? <a onclick="switchTab('signup')">회원가입</a></div>
       </div>
 
-      <!-- SIGNUP FORM -->
+      <!-- SIGNUP -->
       <div id="signupForm" style="display:none">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div class="form-group">
-            <label>원장님 성함 *</label>
-            <div class="input-wrap">
-              <input type="text" id="suName" placeholder="홍길동" autocomplete="name">
-            </div>
-            <div class="field-error" id="suNameErr">성함을 입력해주세요</div>
-          </div>
-          <div class="form-group">
-            <label>진료과목 *</label>
-            <div class="select-wrap">
-              <select id="suDept">
-                <option value="">선택</option>
-                <option>내과</option><option>피부과</option><option>정형외과</option>
-                <option>이비인후과</option><option>안과</option><option>소아청소년과</option>
-                <option>산부인과</option><option>치과</option><option>한의원</option><option>기타</option>
-              </select>
-            </div>
-          </div>
+        <div class="row2">
+          <div class="fg"><label>원장님 성함 *</label><div class="iw"><input type="text" id="sName" placeholder="홍길동"></div><div class="ferr" id="sNameErr">성함을 입력해주세요</div></div>
+          <div class="fg"><label>진료과목 *</label><div class="sw"><select id="sDept"><option value="">선택</option><option>내과</option><option>피부과</option><option>정형외과</option><option>이비인후과</option><option>안과</option><option>소아청소년과</option><option>산부인과</option><option>치과</option><option>한의원</option><option>기타</option></select></div></div>
         </div>
-        <div class="form-group">
-          <label>병원명 *</label>
-          <div class="input-wrap">
-            <input type="text" id="suHospital" placeholder="예: 강남 밝은내과" autocomplete="organization">
-          </div>
-          <div class="field-error" id="suHospitalErr">병원명을 입력해주세요</div>
-        </div>
-        <div class="form-group">
-          <label>이메일 *</label>
-          <div class="input-wrap">
-            <input type="email" id="suEmail" placeholder="hospital@example.com" autocomplete="email">
-          </div>
-          <div class="field-error" id="suEmailErr">올바른 이메일을 입력해주세요</div>
-        </div>
-        <div class="form-group">
-          <label>비밀번호 *</label>
-          <div class="input-wrap">
-            <input type="password" id="suPw" placeholder="8자 이상, 영문+숫자+특수문자" oninput="checkPwStrength(this.value)" autocomplete="new-password">
-            <span class="input-icon" onclick="togglePw('suPw',this)">👁</span>
-          </div>
-          <div class="field-error" id="suPwErr">비밀번호를 입력해주세요</div>
-          <div class="pw-strength" id="pwStrength">
-            <div class="pw-bars"><div class="pw-bar" id="b1"></div><div class="pw-bar" id="b2"></div><div class="pw-bar" id="b3"></div></div>
-            <div class="pw-label" id="pwLabel">비밀번호 강도</div>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>비밀번호 확인 *</label>
-          <div class="input-wrap">
-            <input type="password" id="suPw2" placeholder="비밀번호 재입력" autocomplete="new-password">
-            <span class="input-icon" onclick="togglePw('suPw2',this)">👁</span>
-          </div>
-          <div class="field-error" id="suPw2Err">비밀번호가 일치하지 않습니다</div>
-        </div>
-        <div class="check-row">
-          <input type="checkbox" id="agreeTerms">
-          <label for="agreeTerms"><a href="#">이용약관</a> 및 <a href="#">개인정보처리방침</a>에 동의합니다 *</label>
-        </div>
-        <div class="check-row">
-          <input type="checkbox" id="agreeMarketing">
-          <label for="agreeMarketing">마케팅 정보 수신에 동의합니다 (선택)</label>
-        </div>
-        <button class="btn-submit" id="signupBtn" onclick="doSignup()">
-          <span>회원가입 — 1개월 무료 시작</span>
-        </button>
-        <div class="switch-text">이미 계정이 있으신가요? <a onclick="switchTab('login')">로그인</a></div>
+        <div class="fg"><label>병원명 *</label><div class="iw"><input type="text" id="sHospital" placeholder="강남 밝은내과"></div><div class="ferr" id="sHospitalErr">병원명을 입력해주세요</div></div>
+        <div class="fg"><label>이메일 *</label><div class="iw"><input type="email" id="sEmail" placeholder="hospital@example.com"></div><div class="ferr" id="sEmailErr">올바른 이메일을 입력해주세요</div></div>
+        <div class="fg"><label>비밀번호 *</label><div class="iw"><input type="password" id="sPw" placeholder="8자 이상, 영문+숫자+특수문자" oninput="checkStr(this.value)"><span class="eye" onclick="togglePw('sPw',this)">👁</span></div><div class="ferr" id="sPwErr">8자 이상 입력해주세요</div><div class="pw-str" id="pwStr"><div class="pw-bars"><div class="pw-bar" id="b1"></div><div class="pw-bar" id="b2"></div><div class="pw-bar" id="b3"></div></div><div class="pw-lbl" id="pwLbl"></div></div></div>
+        <div class="fg"><label>비밀번호 확인 *</label><div class="iw"><input type="password" id="sPw2" placeholder="비밀번호 재입력"><span class="eye" onclick="togglePw('sPw2',this)">👁</span></div><div class="ferr" id="sPw2Err">비밀번호가 일치하지 않습니다</div></div>
+        <div class="chk-row"><input type="checkbox" id="agreeT"><label for="agreeT"><a href="#">이용약관</a> 및 <a href="#">개인정보처리방침</a>에 동의합니다 *</label></div>
+        <button class="btn-submit" id="signupBtn" onclick="doSignup()"><span>회원가입 — 1개월 무료 시작</span></button>
+        <div class="sw-txt">이미 계정이 있으신가요? <a onclick="switchTab('login')">로그인</a></div>
       </div>
-
-      <!-- Security badges -->
-      <div class="security-badges">
+      <div class="sec-badges">
         <div class="s-badge">🔒 TLS 암호화</div>
         <div class="s-badge">🛡 Firebase 보안</div>
         <div class="s-badge">✅ 개인정보보호법 준수</div>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- After login -->
-    <div class="dashboard-preview" id="dashPreview">
-      <div class="icon">🎉</div>
-      <div class="user-chip" id="userChip">👤 로그인됨</div>
-      <h2 id="welcomeMsg">환영합니다!</h2>
-      <p id="welcomeSub">MediReview AI 대시보드로 이동하세요</p>
-      <button class="btn-goto" onclick="gotoDash()">📊 대시보드 열기</button>
-      <button class="btn-logout" onclick="doLogout()">로그아웃</button>
+<!-- ══ DASHBOARD PAGE ══ -->
+<div class="page" id="dashPage">
+  <div class="app-wrap">
+    <aside class="sidebar">
+      <div class="sb-logo">🏥 <span>MediReview AI</span></div>
+      <nav class="sb-nav">
+        <div class="nav-item active"><span class="nav-icon">📊</span><span>대시보드</span></div>
+        <div class="nav-item"><span class="nav-icon">💬</span><span>리뷰 관리</span></div>
+        <div class="nav-item"><span class="nav-icon">🤖</span><span>AI 답변</span></div>
+        <div class="nav-item"><span class="nav-icon">📈</span><span>월간 리포트</span></div>
+        <div class="nav-item"><span class="nav-icon">⚙️</span><span>설정</span></div>
+      </nav>
+      <div class="sb-bottom">
+        <div class="sb-user" id="sbEmail"></div>
+        <div class="sb-hospital" id="sbHospital">내 병원</div>
+        <button class="btn-logout-sb" onclick="doLogout()">🚪 로그아웃</button>
+      </div>
+    </aside>
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-title" id="dashTitle">대시보드</div>
+        <div class="topbar-right">
+          <span class="badge-new">🔔 새 리뷰 3건</span>
+          <button class="btn btn-primary">+ 리뷰 새로고침</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="info-box">💡 <span><strong id="welcomeName">원장님</strong>, 환영합니다! 오늘 새로운 리뷰 3건이 등록되었습니다. <strong>부정 리뷰 1건</strong>에 빠른 답변을 권장합니다.</span></div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-label">전체 평균 별점</div><div class="stat-val" style="color:#f59e0b">4.6 ⭐</div><div class="stat-sub up">▲ 0.2 지난달 대비</div></div>
+          <div class="stat-card"><div class="stat-label">이번달 총 리뷰</div><div class="stat-val" style="color:var(--primary)">47건</div><div class="stat-sub up">▲ 12건 증가</div></div>
+          <div class="stat-card"><div class="stat-label">답변 완료율</div><div class="stat-val" style="color:var(--success)">78%</div><div class="stat-sub">미답변 10건 남음</div></div>
+          <div class="stat-card"><div class="stat-label">AI 답변 생성 (월)</div><div class="stat-val" style="color:#7c3aed">23건</div><div class="stat-sub">무제한 스탠다드 플랜</div></div>
+        </div>
+        <div class="section-title">📡 플랫폼별 현황</div>
+        <div class="platform-grid">
+          <div class="platform-card"><div class="pl-icon pl-naver">🟢</div><div><div class="pl-name">네이버 지도</div><div class="pl-rating"><span class="stars">★★★★★</span><span class="rnum">4.7</span><span class="rcnt">(128)</span></div></div><span class="pl-badge badge-new-r">새 2건</span></div>
+          <div class="platform-card"><div class="pl-icon pl-kakao">🟡</div><div><div class="pl-name">카카오맵</div><div class="pl-rating"><span class="stars">★★★★☆</span><span class="rnum">4.4</span><span class="rcnt">(63)</span></div></div><span class="pl-badge badge-new-r">새 1건</span></div>
+          <div class="platform-card"><div class="pl-icon pl-google">🔵</div><div><div class="pl-name">구글 지도</div><div class="pl-rating"><span class="stars">★★★★★</span><span class="rnum">4.8</span><span class="rcnt">(41)</span></div></div><span class="pl-badge badge-ok">최신</span></div>
+        </div>
+        <div class="section-title">💬 최근 리뷰 <span style="font-size:11px;color:var(--text2);font-weight:400">총 47건</span></div>
+        <div class="review-toolbar">
+          <div class="search-box"><span class="si">🔍</span><input type="text" placeholder="리뷰 검색..." id="searchInput" oninput="filterReviews()"></div>
+          <button class="filter-btn active" onclick="setFilter('all',this)">전체</button>
+          <button class="filter-btn" onclick="setFilter('pending',this)">미답변</button>
+          <button class="filter-btn" onclick="setFilter('positive',this)">긍정</button>
+          <button class="filter-btn" onclick="setFilter('negative',this)">부정</button>
+          <button class="filter-btn" onclick="setFilter('naver',this)">네이버</button>
+          <button class="filter-btn" onclick="setFilter('kakao',this)">카카오</button>
+        </div>
+        <div class="review-list" id="reviewList"></div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Firebase SDK -->
+<!-- AI Reply Modal -->
+<div class="modal-overlay hidden" id="modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">🤖 AI 답변 생성</div><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="modal-rv"><div class="modal-rv-lbl">원본 리뷰</div><div id="mRvMeta" style="margin-bottom:5px;font-size:12px;color:var(--text2)"></div><div class="modal-rv-txt" id="mRvTxt"></div></div>
+      <div class="ai-lbl">✨ AI 생성 답변 <span class="ai-status" id="aiStatus"></span></div>
+      <textarea class="reply-ta" id="replyTa" placeholder="AI 답변 생성 중..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ai btn-ai-o" onclick="genReply()">🔄 다시 생성</button>
+      <button class="btn btn-ai btn-ai-o" onclick="closeModal()">취소</button>
+      <button class="btn btn-ai btn-ai-p" onclick="postReply()">✅ 답변 게시</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.7.1/firebase-app-compat.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.7.1/firebase-auth-compat.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.7.1/firebase-database-compat.min.js"></script>
 
 <script>
-// ============================================================
-// ⚠️ Firebase 설정 — 본인 프로젝트 값으로 교체하세요
-// Firebase Console → 프로젝트 설정 → 앱 추가 → 웹
-// ============================================================
-const FIREBASE_CONFIG = {
+// ── Firebase Config ──
+firebase.initializeApp({
   apiKey: "AIzaSyA3QsQ8ih6-7QhEKPS4OGyMsewZaihWS_8",
   authDomain: "medireview-ai-b92cb.firebaseapp.com",
   databaseURL: "https://medireview-ai-b92cb-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "medireview-ai-b92cb",
   storageBucket: "medireview-ai-b92cb.firebasestorage.app",
   messagingSenderId: "538820735137",
-  appId: "1:538820735137:web:e4f766ae58cdda4b5ec0e0",
-  measurementId: "G-S86HV9BNCF"
-};
+  appId: "1:538820735137:web:e4f766ae58cdda4b5ec0e0"
+});
+const auth = firebase.auth();
+const db = firebase.database();
+const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-// Firebase 초기화
-let auth, db, googleProvider;
-let firebaseReady = false;
+// ── 샘플 리뷰 데이터 ──
+const REVIEWS = [
+  {id:1,platform:'naver',author:'김**',stars:5,date:'2시간 전',text:'원장님이 정말 친절하게 설명해 주셨어요. 이렇게 자세히 들어준 병원은 처음이에요. 대기시간도 짧고 청결했습니다.',keywords:['친절','설명','청결'],status:'pending',type:'positive'},
+  {id:2,platform:'kakao',author:'이**',stars:2,date:'5시간 전',text:'대기시간이 너무 길었어요. 예약을 했는데도 40분을 기다렸습니다. 처방도 별로 효과가 없었고요.',keywords:['대기시간','예약'],status:'pending',type:'negative'},
+  {id:3,platform:'naver',author:'박**',stars:5,date:'어제',text:'검진 결과 설명을 너무 잘 해주셔서 불안했던 마음이 편해졌어요. 간호사 선생님도 친절하시고 시설도 깔끔합니다.',keywords:['설명','간호사','추천'],status:'replied',type:'positive'},
+  {id:4,platform:'google',author:'최**',stars:4,date:'어제',text:'전반적으로 만족스럽습니다. 접수부터 진료까지 빠르게 진행되었고 꼼꼼하게 봐주셨어요. 주차가 좀 불편한 점은 아쉽네요.',keywords:['빠름','꼼꼼','주차'],status:'pending',type:'neutral'},
+  {id:5,platform:'kakao',author:'강**',stars:5,date:'3일 전',text:'오래된 단골인데 항상 친절하고 믿을 수 있어요. 원장님이 환자를 기억해 주셔서 감동받았습니다.',keywords:['친절','신뢰','단골'],status:'replied',type:'positive'},
+];
 
-try {
-  firebase.initializeApp(FIREBASE_CONFIG);
-  auth = firebase.auth();
-  db = firebase.database();
-  googleProvider = new firebase.auth.GoogleAuthProvider();
-  firebaseReady = true;
+let currentFilter = 'all', currentReview = null, currentUser = null, hospitalInfo = {};
 
-  // 로그인 상태 감지
-  auth.onAuthStateChanged(user => {
-    if (user) showDashboard(user);
-    else showAuth();
-  });
-} catch(e) {
-  // Firebase 미설정 시 데모 모드로 동작
-  console.log('Firebase 미설정 — 데모 모드');
-}
+// ── 인증 상태 감지 ──
+auth.onAuthStateChanged(async user => {
+  document.getElementById('loadingOverlay').classList.add('hidden');
+  if (user) {
+    currentUser = user;
+    // Firebase DB에서 병원 정보 불러오기
+    try {
+      const snap = await db.ref('hospitals/' + user.uid).once('value');
+      hospitalInfo = snap.val() || {};
+    } catch(e) { hospitalInfo = {}; }
+    showDash(user);
+  } else {
+    showAuth();
+  }
+});
 
-// ============================================================
-// UI 전환
-// ============================================================
-function switchTab(tab) {
-  const isLogin = tab === 'login';
-  document.getElementById('tabLogin').classList.toggle('active', isLogin);
-  document.getElementById('tabSignup').classList.toggle('active', !isLogin);
-  document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
-  document.getElementById('signupForm').style.display = isLogin ? 'none' : 'block';
-  document.getElementById('authTitle').textContent = isLogin ? '로그인' : '회원가입';
-  document.getElementById('authSub').textContent = isLogin ? '병원 계정으로 로그인하세요' : '1개월 무료 체험을 시작하세요';
-  clearAlerts();
-}
-
-function showDashboard(user) {
-  document.getElementById('authCard').style.display = 'none';
-  const dp = document.getElementById('dashPreview');
-  dp.style.display = 'block';
-  document.getElementById('userChip').textContent = '👤 ' + (user.displayName || user.email);
-  document.getElementById('welcomeMsg').textContent = (user.displayName || '원장님') + ', 환영합니다!';
-  document.getElementById('welcomeSub').textContent = user.email + ' · 대시보드로 이동하세요';
+function showDash(user) {
+  document.getElementById('authPage').classList.remove('active');
+  document.getElementById('dashPage').classList.add('active');
+  const name = hospitalInfo.name || user.displayName || '원장님';
+  const hospital = hospitalInfo.hospital || '내 병원';
+  document.getElementById('sbEmail').textContent = user.email;
+  document.getElementById('sbHospital').textContent = hospital;
+  document.getElementById('welcomeName').textContent = name + ' 원장님';
+  document.getElementById('dashTitle').textContent = hospital + ' 대시보드';
+  renderReviews();
 }
 
 function showAuth() {
-  document.getElementById('authCard').style.display = 'block';
-  document.getElementById('dashPreview').style.display = 'none';
+  document.getElementById('dashPage').classList.remove('active');
+  document.getElementById('authPage').classList.add('active');
 }
 
-// ============================================================
-// 로그인
-// ============================================================
+// ── 로그인 ──
 async function doLogin() {
   clearAlerts();
-  const email = document.getElementById('loginEmail').value.trim();
-  const pw = document.getElementById('loginPw').value;
-  let valid = true;
-  if (!email || !/\S+@\S+\.\S+/.test(email)) { showFieldErr('loginEmailErr'); valid = false; }
-  if (!pw) { showFieldErr('loginPwErr'); valid = false; }
-  if (!valid) return;
-
-  setLoading('loginBtn', true);
-  if (!firebaseReady) {
-    // 데모 모드
-    await delay(1200);
-    setLoading('loginBtn', false);
-    showSuccess('데모 모드: 실제 Firebase를 연동하면 로그인이 작동합니다.');
-    return;
-  }
+  const email = v('lEmail'), pw = v('lPw');
+  let ok = true;
+  if (!email||!/.+@.+\..+/.test(email)){fe('lEmailErr');ok=false;}
+  if (!pw){fe('lPwErr');ok=false;}
+  if (!ok) return;
+  setLoading('loginBtn',true);
   try {
     await auth.signInWithEmailAndPassword(email, pw);
   } catch(e) {
-    setLoading('loginBtn', false);
-    showError(firebaseErrMsg(e.code));
+    setLoading('loginBtn',false);
+    showErr(fbErr(e.code));
   }
 }
 
-async function doGoogleLogin() {
-  if (!firebaseReady) { showError('Firebase 설정 후 사용 가능합니다.'); return; }
-  try {
-    await auth.signInWithPopup(googleProvider);
-  } catch(e) { showError(firebaseErrMsg(e.code)); }
+async function doGoogle() {
+  try { await auth.signInWithPopup(googleProvider); }
+  catch(e) { showErr(fbErr(e.code)); }
 }
 
 async function forgotPw() {
-  const email = document.getElementById('loginEmail').value.trim();
-  if (!email) { showError('이메일을 먼저 입력해주세요.'); return; }
-  if (!firebaseReady) { showSuccess('데모 모드: Firebase 연동 시 비밀번호 재설정 메일이 발송됩니다.'); return; }
+  const email = v('lEmail');
+  if (!email) { showErr('이메일을 먼저 입력해주세요.'); return; }
   try {
     await auth.sendPasswordResetEmail(email);
-    showSuccess('비밀번호 재설정 메일을 발송했습니다. 받은 메일함을 확인해주세요.');
-  } catch(e) { showError(firebaseErrMsg(e.code)); }
+    showOk('비밀번호 재설정 메일을 발송했습니다.');
+  } catch(e) { showErr(fbErr(e.code)); }
 }
 
-// ============================================================
-// 회원가입
-// ============================================================
+// ── 회원가입 ──
 async function doSignup() {
   clearAlerts();
-  const name = document.getElementById('suName').value.trim();
-  const hospital = document.getElementById('suHospital').value.trim();
-  const dept = document.getElementById('suDept').value;
-  const email = document.getElementById('suEmail').value.trim();
-  const pw = document.getElementById('suPw').value;
-  const pw2 = document.getElementById('suPw2').value;
-  const terms = document.getElementById('agreeTerms').checked;
-
-  let valid = true;
-  if (!name) { showFieldErr('suNameErr'); valid = false; }
-  if (!hospital) { showFieldErr('suHospitalErr'); valid = false; }
-  if (!email || !/\S+@\S+\.\S+/.test(email)) { showFieldErr('suEmailErr'); valid = false; }
-  if (!pw || pw.length < 8) { showFieldErr('suPwErr', '8자 이상 입력해주세요'); valid = false; }
-  if (pw !== pw2) { showFieldErr('suPw2Err'); valid = false; }
-  if (!terms) { showError('이용약관에 동의해주세요.'); valid = false; }
-  if (!valid) return;
-
-  setLoading('signupBtn', true);
-  if (!firebaseReady) {
-    await delay(1400);
-    setLoading('signupBtn', false);
-    showSuccess('데모 모드: Firebase 연동 시 실제 계정이 생성됩니다.');
-    return;
-  }
+  const name=v('sName'), hospital=v('sHospital'), dept=v('sDept'), email=v('sEmail'), pw=v('sPw'), pw2=v('sPw2');
+  let ok = true;
+  if(!name){fe('sNameErr');ok=false;}
+  if(!hospital){fe('sHospitalErr');ok=false;}
+  if(!email||!/.+@.+\..+/.test(email)){fe('sEmailErr');ok=false;}
+  if(!pw||pw.length<8){fe('sPwErr','8자 이상 입력해주세요');ok=false;}
+  if(pw!==pw2){fe('sPw2Err');ok=false;}
+  if(!document.getElementById('agreeT').checked){showErr('이용약관에 동의해주세요.');ok=false;}
+  if(!ok) return;
+  setLoading('signupBtn',true);
   try {
     const cred = await auth.createUserWithEmailAndPassword(email, pw);
-    // Firebase Auth displayName 설정
-    await cred.user.updateProfile({ displayName: name });
-    // Realtime DB에 병원 정보 저장 (비밀번호 제외)
+    await cred.user.updateProfile({displayName: name});
     await db.ref('hospitals/' + cred.user.uid).set({
-      name, hospital, dept,
-      email,
-      plan: 'beta',
-      marketingAgree: document.getElementById('agreeMarketing').checked,
-      createdAt: Date.now()
+      name, hospital, dept: dept||'미설정', email,
+      plan: 'beta', createdAt: Date.now()
     });
-    // 가입 확인 메일 발송
     await cred.user.sendEmailVerification();
-    showSuccess('가입 완료! 이메일 인증 메일을 발송했습니다.');
+    showOk('가입 완료! 이메일 인증 메일을 발송했습니다.');
   } catch(e) {
-    setLoading('signupBtn', false);
-    showError(firebaseErrMsg(e.code));
+    setLoading('signupBtn',false);
+    showErr(fbErr(e.code));
   }
 }
 
-// ============================================================
-// 로그아웃
-// ============================================================
+// ── 로그아웃 ──
 async function doLogout() {
-  if (firebaseReady) await auth.signOut();
-  else showAuth();
+  await auth.signOut();
+  currentUser = null; hospitalInfo = {};
 }
 
-function gotoDash() {
-  alert('대시보드로 이동합니다.\n(실제 배포 시 dashboard.html로 연결하세요)');
+// ── 리뷰 렌더링 ──
+function starStr(n){return '★'.repeat(n)+'☆'.repeat(5-n);}
+function renderReviews() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const list = document.getElementById('reviewList');
+  const filtered = REVIEWS.filter(r => {
+    const mf = currentFilter==='all'||(currentFilter==='pending'&&r.status==='pending')||(currentFilter==='positive'&&r.type==='positive')||(currentFilter==='negative'&&r.type==='negative')||(currentFilter==='naver'&&r.platform==='naver')||(currentFilter==='kakao'&&r.platform==='kakao');
+    const mq = !q||r.text.toLowerCase().includes(q)||r.keywords.some(k=>k.includes(q));
+    return mf && mq;
+  });
+  list.innerHTML = filtered.map(r=>`
+    <div class="rc ${r.type==='negative'?'neg':r.type==='positive'?'pos':'neu'}" onclick="openModal(${r.id})">
+      <div class="rc-header">
+        <div>
+          <div class="rc-meta">
+            <span class="rp rp-${r.platform}">${r.platform==='naver'?'네이버':r.platform==='kakao'?'카카오':'구글'}</span>
+            <span class="rdate">${r.date}</span>
+            <span class="rs ${r.status==='pending'?'rs-p':'rs-r'}">${r.status==='pending'?'미답변':'답변완료'}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;margin-top:4px">
+            <span class="rc-author">${r.author}</span>
+            <span class="rc-stars">${starStr(r.stars)}</span>
+          </div>
+        </div>
+      </div>
+      <div class="rc-text">${r.text}</div>
+      <div class="rc-footer">
+        <div class="kws">${r.keywords.map(k=>`<span class="kw">#${k}</span>`).join('')}</div>
+        <div class="rc-actions">
+          ${r.status==='pending'?`<button class="btn-ai btn-ai-p" onclick="event.stopPropagation();openModal(${r.id})">🤖 AI 답변</button>`:`<button class="btn-ai btn-ai-o" onclick="event.stopPropagation();openModal(${r.id})">👁 보기</button>`}
+        </div>
+      </div>
+    </div>`).join('')||'<div style="text-align:center;padding:36px;color:var(--text2)">해당 조건의 리뷰가 없습니다.</div>';
 }
 
-// ============================================================
-// 유틸
-// ============================================================
-function togglePw(id, el) {
-  const inp = document.getElementById(id);
-  inp.type = inp.type === 'password' ? 'text' : 'password';
-  el.textContent = inp.type === 'password' ? '👁' : '🙈';
-}
+function setFilter(f,el){currentFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderReviews();}
+function filterReviews(){renderReviews();}
 
-function checkPwStrength(pw) {
-  const s = document.getElementById('pwStrength');
-  s.classList.toggle('show', pw.length > 0);
-  const bars = [document.getElementById('b1'), document.getElementById('b2'), document.getElementById('b3')];
-  const label = document.getElementById('pwLabel');
-  bars.forEach(b => { b.className = 'pw-bar'; });
-  let score = 0;
-  if (pw.length >= 8) score++;
-  if (/[A-Za-z]/.test(pw) && /\d/.test(pw)) score++;
-  if (/[^A-Za-z0-9]/.test(pw)) score++;
-  const levels = [['weak','약함'], ['medium','보통'], ['strong','강함']];
-  for (let i = 0; i < score; i++) bars[i].classList.add(levels[score-1][0]);
-  label.textContent = score > 0 ? '비밀번호 강도: ' + levels[score-1][1] : '';
+// ── AI 답변 모달 ──
+function openModal(id) {
+  currentReview = REVIEWS.find(r=>r.id===id);
+  const pl = currentReview.platform==='naver'?'네이버':currentReview.platform==='kakao'?'카카오':'구글';
+  document.getElementById('mRvMeta').innerHTML=`<span class="rp rp-${currentReview.platform}" style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px;margin-right:5px">${pl}</span>${currentReview.author} · ${starStr(currentReview.stars)} · ${currentReview.date}`;
+  document.getElementById('mRvTxt').textContent=currentReview.text;
+  document.getElementById('replyTa').value='';
+  document.getElementById('aiStatus').textContent='';
+  document.getElementById('modal').classList.remove('hidden');
+  genReply();
 }
+function closeModal(){document.getElementById('modal').classList.add('hidden');currentReview=null;}
 
-function showFieldErr(id, msg) {
-  const el = document.getElementById(id);
-  if (msg) el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 3000);
-}
+async function genReply() {
+  if(!currentReview) return;
+  const ta=document.getElementById('replyTa'), st=document.getElementById('aiStatus');
+  ta.value=''; st.innerHTML='<span style="color:var(--primary)">생성 중... ✨</span>';
+  const hospital = hospitalInfo.hospital || '병원';
+  const dept = hospitalInfo.dept || '내과';
+  const typeLabel = currentReview.type==='positive'?'긍정':currentReview.type==='negative'?'부정':'중립';
+  const prompt = `당신은 병원 원장을 대신해서 환자 온라인 리뷰에 답변을 작성하는 전문가입니다.
 
-function showError(msg) {
-  document.getElementById('alertMsg').textContent = msg;
-  document.getElementById('alertError').classList.add('show');
-  setTimeout(() => document.getElementById('alertError').classList.remove('show'), 4000);
-}
+병원명: ${hospital}
+진료과목: ${dept}
 
-function showSuccess(msg) {
-  document.getElementById('alertSuccessMsg').textContent = msg;
-  document.getElementById('alertSuccess').classList.add('show');
-  setTimeout(() => document.getElementById('alertSuccess').classList.remove('show'), 5000);
-}
+아래 환자 리뷰(${typeLabel} 리뷰, 별점 ${currentReview.stars}점)에 대한 원장 답변을 작성해주세요.
 
-function clearAlerts() {
-  document.getElementById('alertError').classList.remove('show');
-  document.getElementById('alertSuccess').classList.remove('show');
-  document.querySelectorAll('.field-error').forEach(e => e.classList.remove('show'));
-}
+[리뷰 내용]
+${currentReview.text}
 
-function setLoading(btnId, loading) {
-  const btn = document.getElementById(btnId);
-  if (loading) {
-    btn.disabled = true;
-    btn.innerHTML = '<div class="spinner"></div>';
-  } else {
-    btn.disabled = false;
-    btn.innerHTML = btnId === 'loginBtn' ? '<span>로그인</span>' : '<span>회원가입 — 1개월 무료 시작</span>';
+작성 규칙:
+- 200자 이내로 간결하게
+- 따뜻하고 전문적인 톤
+- 긍정: 감사 + 재방문 유도 / 부정: 진심 어린 사과 + 개선 약속 / 중립: 감사 + 개선 의지
+- 의료법상 과도한 치료 효과 홍보 금지
+- "${hospital} 드림"으로 마무리
+- 답변 텍스트만 출력 (마크다운 없이)`;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data = await res.json();
+    ta.value = data.content?.find(b=>b.type==='text')?.text||'답변 생성에 실패했습니다.';
+    st.innerHTML='<span style="color:var(--success)">✅ 생성 완료 — 수정 후 게시하세요</span>';
+  } catch(e) {
+    ta.value='';ta.placeholder='네트워크 오류. 다시 시도해주세요.';
+    st.innerHTML='<span style="color:var(--danger)">오류 발생</span>';
   }
 }
 
-function firebaseErrMsg(code) {
-  const msgs = {
-    'auth/user-not-found': '등록되지 않은 이메일입니다.',
-    'auth/wrong-password': '비밀번호가 올바르지 않습니다.',
-    'auth/email-already-in-use': '이미 사용 중인 이메일입니다.',
-    'auth/weak-password': '비밀번호는 6자 이상이어야 합니다.',
-    'auth/invalid-email': '올바른 이메일 형식이 아닙니다.',
-    'auth/too-many-requests': '너무 많은 시도입니다. 잠시 후 다시 시도해주세요.',
-    'auth/network-request-failed': '네트워크 오류가 발생했습니다.',
-    'auth/popup-closed-by-user': '로그인 창이 닫혔습니다. 다시 시도해주세요.',
-  };
-  return msgs[code] || '오류가 발생했습니다. 다시 시도해주세요.';
+function postReply() {
+  if(!currentReview) return;
+  const txt = document.getElementById('replyTa').value.trim();
+  if(!txt){alert('답변 내용을 입력해주세요.');return;}
+  // Firebase DB에 답변 이력 저장
+  if(currentUser) {
+    db.ref(`hospitals/${currentUser.uid}/replies/${currentReview.id}`).set({
+      reviewId: currentReview.id, reply: txt, repliedAt: Date.now(),
+      platform: currentReview.platform, stars: currentReview.stars
+    });
+  }
+  REVIEWS.find(r=>r.id===currentReview.id).status='replied';
+  closeModal(); renderReviews();
+  showToast('✅ 답변이 게시되었습니다!');
 }
 
-const delay = ms => new Promise(r => setTimeout(r, ms));
+// ── UI 전환 ──
+function switchTab(tab) {
+  const isL=tab==='login';
+  document.getElementById('tabLogin').classList.toggle('active',isL);
+  document.getElementById('tabSignup').classList.toggle('active',!isL);
+  document.getElementById('loginForm').style.display=isL?'block':'none';
+  document.getElementById('signupForm').style.display=isL?'none':'block';
+  document.getElementById('authTitle').textContent=isL?'로그인':'회원가입';
+  document.getElementById('authSub').textContent=isL?'병원 계정으로 로그인하세요':'1개월 무료 체험을 시작하세요';
+  clearAlerts();
+}
+
+// ── 유틸 ──
+function v(id){return document.getElementById(id).value.trim();}
+function fe(id,msg){const e=document.getElementById(id);if(msg)e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3000);}
+function showErr(msg){document.getElementById('alertErrMsg').textContent=msg;document.getElementById('alertErr').classList.add('show');}
+function showOk(msg){document.getElementById('alertOkMsg').textContent=msg;document.getElementById('alertOk').classList.add('show');}
+function clearAlerts(){document.getElementById('alertErr').classList.remove('show');document.getElementById('alertOk').classList.remove('show');document.querySelectorAll('.ferr').forEach(e=>e.classList.remove('show'));}
+function setLoading(id,on){const b=document.getElementById(id);b.disabled=on;b.innerHTML=on?'<div class="spinner"></div>':(id==='loginBtn'?'<span>로그인</span>':'<span>회원가입 — 1개월 무료 시작</span>');}
+function togglePw(id,el){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';el.textContent=i.type==='password'?'👁':'🙈';}
+function checkStr(pw){const s=document.getElementById('pwStr');s.classList.toggle('show',pw.length>0);const bars=[document.getElementById('b1'),document.getElementById('b2'),document.getElementById('b3')];bars.forEach(b=>{b.className='pw-bar';});let sc=0;if(pw.length>=8)sc++;if(/[A-Za-z]/.test(pw)&&/\d/.test(pw))sc++;if(/[^A-Za-z0-9]/.test(pw))sc++;const lvl=[['weak','약함'],['medium','보통'],['strong','강함']];for(let i=0;i<sc;i++)bars[i].classList.add(lvl[sc-1][0]);document.getElementById('pwLbl').textContent=sc>0?'비밀번호 강도: '+lvl[sc-1][1]:'';}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function fbErr(code){const m={'auth/user-not-found':'등록되지 않은 이메일입니다.','auth/wrong-password':'비밀번호가 올바르지 않습니다.','auth/email-already-in-use':'이미 사용 중인 이메일입니다.','auth/weak-password':'비밀번호는 6자 이상이어야 합니다.','auth/invalid-email':'올바른 이메일 형식이 아닙니다.','auth/too-many-requests':'잠시 후 다시 시도해주세요.','auth/network-request-failed':'네트워크 오류가 발생했습니다.','auth/popup-closed-by-user':'로그인 창이 닫혔습니다.'};return m[code]||'오류가 발생했습니다.';}
 </script>
 </body>
 </html>
