@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>병원 리뷰 건강진단 — MediReview AI</title>
+<style>
+:root{--primary:#1d4ed8;--pd:#1e40af;--pl:#eff6ff;--success:#16a34a;--danger:#dc2626;--warning:#d97706;--text:#0f172a;--t2:#475569;--t3:#94a3b8;--bg:#f8fafc;--card:#fff;--border:#e2e8f0;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);}
+
+/* NAV */
+nav{background:#0f172a;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-size:16px;font-weight:800;color:#fff;text-decoration:none;display:flex;align-items:center;gap:8px;}
+.nav-logo span{color:#60a5fa;}
+.nav-cta{background:var(--primary);color:#fff;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;transition:all .15s;}
+.nav-cta:hover{background:var(--pd);}
+
+/* HERO */
+.hero{background:linear-gradient(160deg,#0f172a 0%,#1e3a5f 100%);padding:60px 24px 50px;text-align:center;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(96,165,250,.15);color:#60a5fa;font-size:12px;font-weight:700;padding:5px 14px;border-radius:99px;margin-bottom:20px;border:1px solid rgba(96,165,250,.3);}
+.hero h1{font-size:clamp(28px,4vw,46px);font-weight:900;color:#fff;line-height:1.2;margin-bottom:14px;letter-spacing:-1px;}
+.hero h1 span{color:#60a5fa;}
+.hero p{font-size:16px;color:#94a3b8;max-width:520px;margin:0 auto 36px;line-height:1.7;}
+
+/* FORM CARD */
+.form-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:32px;max-width:600px;margin:0 auto;}
+.form-row{margin-bottom:16px;}
+.form-row label{display:block;font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.form-row input{width:100%;padding:13px 16px;border:1.5px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(255,255,255,.08);color:#fff;font-size:14px;outline:none;transition:border .15s;}
+.form-row input::placeholder{color:#475569;}
+.form-row input:focus{border-color:#60a5fa;}
+.hint{font-size:11px;color:#475569;margin-top:5px;}
+.btn-diagnose{width:100%;padding:14px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:all .15s;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-diagnose:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(29,78,216,.35);}
+.btn-diagnose:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.free-badge{text-align:center;font-size:12px;color:#475569;margin-top:10px;}
+
+/* LOADING */
+.loading-section{display:none;text-align:center;padding:48px 24px;max-width:600px;margin:0 auto;}
+.loading-section.show{display:block;}
+.loading-icon{font-size:48px;margin-bottom:16px;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+.loading-title{font-size:20px;font-weight:800;color:#fff;margin-bottom:8px;}
+.loading-sub{font-size:14px;color:#94a3b8;margin-bottom:24px;}
+.progress-bar{background:rgba(255,255,255,.1);border-radius:99px;height:6px;overflow:hidden;max-width:400px;margin:0 auto;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#1d4ed8,#7c3aed);border-radius:99px;transition:width 1s ease;width:0%;}
+.steps{display:flex;flex-direction:column;gap:8px;margin-top:20px;text-align:left;max-width:400px;margin:20px auto 0;}
+.step-item{display:flex;align-items:center;gap:10px;font-size:13px;color:#64748b;transition:color .3s;}
+.step-item.done{color:#4ade80;}
+.step-item.active{color:#60a5fa;}
+.step-dot{width:8px;height:8px;border-radius:50%;background:#334155;flex-shrink:0;transition:background .3s;}
+.step-item.done .step-dot{background:#4ade80;}
+.step-item.active .step-dot{background:#60a5fa;animation:blink .8s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* RESULT */
+.result-section{display:none;padding:40px 24px;max-width:900px;margin:0 auto;}
+.result-section.show{display:block;}
+
+/* Grade */
+.grade-card{background:var(--card);border-radius:16px;padding:28px;margin-bottom:20px;display:flex;align-items:center;gap:24px;border:1px solid var(--border);}
+.grade-circle{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:900;flex-shrink:0;}
+.grade-A{background:#dcfce7;color:#16a34a;}
+.grade-B{background:#dbeafe;color:#1d4ed8;}
+.grade-C{background:#fef9c3;color:#ca8a04;}
+.grade-D{background:#fee2e2;color:#dc2626;}
+.grade-F{background:#1f2937;color:#ef4444;}
+.grade-info h2{font-size:22px;font-weight:900;margin-bottom:4px;}
+.grade-info p{font-size:14px;color:var(--t2);line-height:1.6;}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;}
+.stat-box .val{font-size:28px;font-weight:900;margin-bottom:4px;}
+.stat-box .lbl{font-size:12px;color:var(--t2);}
+.stat-box.danger .val{color:var(--danger);}
+.stat-box.warning .val{color:var(--warning);}
+.stat-box.success .val{color:var(--success);}
+.stat-box.primary .val{color:var(--primary);}
+
+/* Sentiment */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.result-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.result-card h3{font-size:13px;font-weight:700;color:var(--t2);margin-bottom:14px;}
+.kw-item{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.kw-name{font-size:13px;font-weight:600;width:100px;flex-shrink:0;}
+.kw-bar{flex:1;background:#f1f5f9;border-radius:99px;height:8px;overflow:hidden;}
+.kw-fill{height:100%;border-radius:99px;}
+.kw-fill.pos{background:#16a34a;}
+.kw-fill.neg{background:#dc2626;}
+
+/* Worst review */
+.worst-box{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:16px;margin-bottom:20px;}
+.worst-box .label{font-size:11px;font-weight:700;color:var(--danger);margin-bottom:6px;text-transform:uppercase;}
+.worst-box p{font-size:14px;color:#7f1d1d;line-height:1.6;}
+
+/* Improvements */
+.improve-card{background:linear-gradient(135deg,#fef9c3,#fef3c7);border:1px solid #fde68a;border-radius:12px;padding:20px;margin-bottom:20px;}
+.improve-card h3{font-size:14px;font-weight:700;color:#92400e;margin-bottom:12px;}
+.improve-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:#78350f;margin-bottom:8px;line-height:1.5;}
+.improve-num{width:22px;height:22px;background:#d97706;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px;}
+
+/* CTA */
+.cta-card{background:linear-gradient(135deg,#1d4ed8,#7c3aed);border-radius:16px;padding:32px;text-align:center;color:#fff;}
+.cta-card h2{font-size:24px;font-weight:900;margin-bottom:8px;}
+.cta-card p{font-size:14px;color:#bfdbfe;margin-bottom:24px;line-height:1.6;}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-cta-p{background:#fff;color:var(--primary);padding:13px 28px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;border:none;cursor:pointer;transition:all .15s;}
+.btn-cta-p:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.2);}
+.btn-cta-o{background:rgba(255,255,255,.1);color:#fff;padding:13px 28px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;border:1px solid rgba(255,255,255,.3);cursor:pointer;transition:all .15s;}
+.btn-cta-o:hover{background:rgba(255,255,255,.2);}
+
+/* Alert */
+.alert-err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:10px;padding:12px 16px;font-size:13px;margin-top:12px;display:none;}
+.alert-err.show{display:block;}
+
+/* Spinner */
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Reviews preview */
+.reviews-preview{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.rv-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.rv-stars{color:#f59e0b;font-size:13px;margin-bottom:4px;}
+.rv-text{font-size:13px;color:var(--t2);line-height:1.5;}
+
+@media(max-width:700px){.stats-grid{grid-template-columns:repeat(2,1fr);}.two-col{grid-template-columns:1fr;}.grade-card{flex-direction:column;text-align:center;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">🏥 MediReview <span>AI</span></a>
+  <a href="index.html" class="nav-cta">로그인 / 무료 시작</a>
+</nav>
+
+<!-- HERO + FORM -->
+<div class="hero">
+  <div class="hero-badge">🩺 무료 AI 진단 서비스</div>
+  <h1>우리 병원 리뷰<br><span>건강 상태</span>는 몇 점일까요?</h1>
+  <p>네이버 플레이스 URL만 입력하면 30초 안에 AI가 리뷰를 분석해 드립니다. 완전 무료입니다.</p>
+
+  <div class="form-card">
+    <div class="form-row">
+      <label>병원명</label>
+      <input type="text" id="hospitalName" placeholder="예: 강남 밝은내과">
+    </div>
+    <div class="form-row">
+      <label>네이버 플레이스 URL *</label>
+      <input type="url" id="naverUrl" placeholder="https://map.naver.com/v5/entry/place/...">
+      <div class="hint">💡 네이버 지도에서 병원 검색 → 공유 버튼 → URL 복사</div>
+    </div>
+    <button class="btn-diagnose" id="diagBtn" onclick="startDiagnosis()">
+      <span>🔍 무료 AI 진단 시작하기</span>
+    </button>
+    <div class="alert-err" id="alertErr"></div>
+    <div class="free-badge">✓ 완전 무료 &nbsp;·&nbsp; 회원가입 불필요 &nbsp;·&nbsp; 30초 완료</div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-section" id="loadingSection">
+    <div class="loading-icon">🔍</div>
+    <div class="loading-title">AI가 리뷰를 분석하고 있습니다</div>
+    <div class="loading-sub" id="loadingSub">네이버 플레이스에서 리뷰를 수집하는 중...</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="steps">
+      <div class="step-item active" id="step1"><div class="step-dot"></div>네이버 플레이스 리뷰 수집 중...</div>
+      <div class="step-item" id="step2"><div class="step-dot"></div>리뷰 데이터 처리 중...</div>
+      <div class="step-item" id="step3"><div class="step-dot"></div>AI 감성 분석 중...</div>
+      <div class="step-item" id="step4"><div class="step-dot"></div>진단 리포트 생성 중...</div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="result-section" id="resultSection">
+  <!-- Grade -->
+  <div class="grade-card">
+    <div class="grade-circle" id="gradeCircle">B</div>
+    <div class="grade-info">
+      <h2 id="gradeTitle">리뷰 건강 진단 결과</h2>
+      <p id="gradeSummary"></p>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-box primary"><div class="val" id="statTotal">-</div><div class="lbl">분석 리뷰 수</div></div>
+    <div class="stat-box warning"><div class="val" id="statRating">-</div><div class="lbl">평균 별점</div></div>
+    <div class="stat-box danger"><div class="val" id="statReply">-</div><div class="lbl">답변 완료율</div></div>
+    <div class="stat-box success"><div class="val" id="statPositive">-</div><div class="lbl">긍정 리뷰 비율</div></div>
+  </div>
+
+  <!-- Keywords -->
+  <div class="two-col">
+    <div class="result-card">
+      <h3>😊 긍정 키워드 TOP 5</h3>
+      <div id="posKeywords"></div>
+    </div>
+    <div class="result-card">
+      <h3>😟 부정 키워드 TOP 3</h3>
+      <div id="negKeywords"></div>
+    </div>
+  </div>
+
+  <!-- Worst review -->
+  <div class="worst-box" id="worstBox">
+    <div class="label">⚠️ 가장 심각한 부정 리뷰</div>
+    <p id="worstReview"></p>
+  </div>
+
+  <!-- Improvements -->
+  <div class="improve-card">
+    <h3>🔧 AI 추천 개선 사항</h3>
+    <div id="improvements"></div>
+  </div>
+
+  <!-- Recent reviews -->
+  <div style="margin-bottom:20px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:12px">📋 수집된 최근 리뷰</div>
+    <div class="reviews-preview" id="reviewsPreview"></div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-card">
+    <h2>🤖 이 리뷰들에 AI 답변을 달아드릴까요?</h2>
+    <p>MediReview AI를 사용하면 부정 리뷰에 10초 만에<br>맞춤 사과 답변을 생성하고, 모든 리뷰를 한 곳에서 관리할 수 있습니다.</p>
+    <div class="cta-btns">
+      <button class="btn-cta-p" onclick="location.href='index.html'">🎁 1개월 무료 체험 시작</button>
+      <button class="btn-cta-o" onclick="location.href='index.html#pricing'">요금제 보기</button>
+    </div>
+    <div style="font-size:12px;color:#93c5fd;margin-top:14px">✓ 카드 등록 불필요 &nbsp;·&nbsp; 설치 없음 &nbsp;·&nbsp; 의료법 준수</div>
+  </div>
+</div>
+
+<script>
+const FUNCTION_URL = 'https://asia-northeast3-medireview-ai-b92cb.cloudfunctions.net/diagnosHospital';
+
+async function startDiagnosis() {
+  const naverUrl = document.getElementById('naverUrl').value.trim();
+  const hospitalName = document.getElementById('hospitalName').value.trim();
+  const errEl = document.getElementById('alertErr');
+
+  errEl.classList.remove('show');
+
+  if (!naverUrl) {
+    errEl.textContent = '네이버 플레이스 URL을 입력해주세요.';
+    errEl.classList.add('show');
+    return;
+  }
+  if (!naverUrl.includes('naver')) {
+    errEl.textContent = '네이버 지도 URL을 입력해주세요. (map.naver.com 또는 naver.me)';
+    errEl.classList.add('show');
+    return;
+  }
+
+  // UI 전환
+  const btn = document.getElementById('diagBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div>';
+  document.querySelector('.form-card').style.display = 'none';
+  document.getElementById('loadingSection').classList.add('show');
+  document.getElementById('resultSection').classList.remove('show');
+
+  // 진행 애니메이션
+  animateProgress();
+
+  try {
+    const res = await fetch(FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ naverUrl, hospitalName })
+    });
+    const data = await res.json();
+
+    if (!data.success) {
+      throw new Error(data.error || '진단에 실패했습니다.');
+    }
+
+    showResult(data, hospitalName);
+  } catch (e) {
+    document.querySelector('.form-card').style.display = 'block';
+    document.getElementById('loadingSection').classList.remove('show');
+    btn.disabled = false;
+    btn.innerHTML = '<span>🔍 무료 AI 진단 시작하기</span>';
+    errEl.textContent = '오류: ' + e.message;
+    errEl.classList.add('show');
+  }
+}
+
+function animateProgress() {
+  const steps = ['step1','step2','step3','step4'];
+  const msgs = ['네이버 플레이스에서 리뷰를 수집하는 중...','리뷰 데이터를 처리하는 중...','AI가 감성을 분석하는 중...','진단 리포트를 생성하는 중...'];
+  const fills = [25, 50, 75, 95];
+  let i = 0;
+  const iv = setInterval(() => {
+    if (i > 0) {
+      document.getElementById(steps[i-1]).className = 'step-item done';
+    }
+    if (i < steps.length) {
+      document.getElementById(steps[i]).className = 'step-item active';
+      document.getElementById('loadingSub').textContent = msgs[i];
+      document.getElementById('progressFill').style.width = fills[i] + '%';
+      i++;
+    } else {
+      clearInterval(iv);
+    }
+  }, 15000); // 15초마다 단계 전환
+}
+
+function showResult(data, hospitalName) {
+  document.getElementById('loadingSection').classList.remove('show');
+  document.getElementById('progressFill').style.width = '100%';
+
+  const a = data.analysis;
+  const rs = document.getElementById('resultSection');
+  rs.classList.add('show');
+
+  // Grade
+  const grade = a.grade || 'C';
+  const gc = document.getElementById('gradeCircle');
+  gc.textContent = grade;
+  gc.className = 'grade-circle grade-' + grade;
+  document.getElementById('gradeTitle').textContent = (hospitalName || data.hospitalName) + ' 리뷰 건강 진단 결과';
+  document.getElementById('gradeSummary').textContent = a.summary || '';
+
+  // Stats
+  document.getElementById('statTotal').textContent = a.totalReviews + '건';
+  document.getElementById('statRating').textContent = a.avgRating + '점';
+  document.getElementById('statReply').textContent = (a.replyRate || 0) + '%';
+  const posRate = a.totalReviews > 0 ? Math.round((a.positive / a.totalReviews) * 100) : 0;
+  document.getElementById('statPositive').textContent = posRate + '%';
+
+  // 색상 조정
+  if (a.replyRate < 30) document.getElementById('statReply').parentElement.className = 'stat-box danger';
+  else if (a.replyRate < 60) document.getElementById('statReply').parentElement.className = 'stat-box warning';
+  else document.getElementById('statReply').parentElement.className = 'stat-box success';
+
+  // Pos keywords
+  const posKws = a.posKeywords || [];
+  document.getElementById('posKeywords').innerHTML = posKws.map((k, i) => `
+    <div class="kw-item">
+      <div class="kw-name">${k}</div>
+      <div class="kw-bar"><div class="kw-fill pos" style="width:${100 - i*15}%"></div></div>
+    </div>`).join('');
+
+  // Neg keywords
+  const negKws = a.negKeywords || [];
+  document.getElementById('negKeywords').innerHTML = negKws.map((k, i) => `
+    <div class="kw-item">
+      <div class="kw-name">${k}</div>
+      <div class="kw-bar"><div class="kw-fill neg" style="width:${100 - i*20}%"></div></div>
+    </div>`).join('');
+
+  // Worst review
+  if (a.worstReview) {
+    document.getElementById('worstReview').textContent = '"' + a.worstReview + '"';
+  } else {
+    document.getElementById('worstBox').style.display = 'none';
+  }
+
+  // Improvements
+  const imps = a.improvements || [];
+  document.getElementById('improvements').innerHTML = imps.map((imp, i) => `
+    <div class="improve-item">
+      <div class="improve-num">${i+1}</div>
+      <div>${imp}</div>
+    </div>`).join('');
+
+  // Recent reviews
+  const reviews = data.reviews || [];
+  document.getElementById('reviewsPreview').innerHTML = reviews.map(r => `
+    <div class="rv-item">
+      <div class="rv-stars">${'★'.repeat(r.rating || 3)}${'☆'.repeat(5-(r.rating||3))}</div>
+      <div class="rv-text">${r.text || '(내용 없음)'}</div>
+    </div>`).join('');
+
+  // 스크롤
+  rs.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
