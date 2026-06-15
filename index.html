@@ -611,9 +611,19 @@ async function genReply(){
   const hosp=hospInfo.hospital||'병원', dept=hospInfo.dept||'내과';
   const tl=curReview.type==='positive'?'긍정':curReview.type==='negative'?'부정':'중립';
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:`병원 원장을 대신해 환자 리뷰에 답변을 작성하세요.\n병원명: ${hosp}\n진료과목: ${dept}\n리뷰 유형: ${tl} (별점 ${curReview.stars}점)\n리뷰: ${curReview.text}\n\n규칙: 200자 이내, 따뜻하고 전문적인 톤, 의료법상 과도한 치료 효과 홍보 금지, "${hosp} 드림"으로 마무리, 텍스트만 출력`}]})});
+    const res=await fetch('https://generatereply-2i4y6wysiq-du.a.run.app',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        reviewText:curReview.text,
+        reviewType:curReview.type,
+        stars:curReview.stars,
+        hospital:hosp,
+        dept:dept
+      })
+    });
     const data=await res.json();
-    ta.value=data.content?.find(b=>b.type==='text')?.text||'생성 실패';
+    ta.value=data.reply||'생성 실패';
     st.innerHTML='<span style="color:var(--success)">✅ 생성 완료 — 수정 후 게시하세요</span>';
   }catch(e){ta.value='';ta.placeholder='오류 발생. 다시 시도해주세요.';st.innerHTML='<span style="color:var(--danger)">오류 발생</span>';}
 }
